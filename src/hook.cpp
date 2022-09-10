@@ -42,11 +42,15 @@ namespace hook {
 
             void* buffer_config{nullptr};
             size_t buffer_config_size{0};
+            bool buffer_config_abs_jmp{false};
 
             void* buffer_original{nullptr};
 
             [[nodiscard]] auto create_buffer_config() -> bool;
             [[nodiscard]] auto inject_jump() -> bool;
+
+            [[nodiscard]] auto inject_jump_rel() -> bool;
+            [[nodiscard]] auto inject_jump_abs() -> bool;
     };
 }
 
@@ -73,19 +77,113 @@ auto JumpHook::initialize() -> bool {
     return this->inject_jump();
 }
 
+void* allocate_nearby(uintptr_t target, size_t size)
+{
+    MEMORY_BASIC_INFORMATION mbi{};
+    auto handle_process = GetCurrentProcess();
+    auto begin = target - 0x7FF00000;
+    auto end = target + 0x7FF00000;
+    for (auto curr = begin; curr < end; curr += mbi.RegionSize) {
+        if(!VirtualQueryEx(handle_process, (void*) curr, &mbi, sizeof(mbi))) {
+            continue;
+        }
+
+        if(mbi.State != MEM_FREE) {
+            continue;
+        }
+
+        auto memory = VirtualAllocEx(handle_process, mbi.BaseAddress, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+        if(!memory) {
+            continue;
+        }
+
+        return memory;
+    }
+
+    logging::warn("Failed to allocate memory near 0x{:X}. Using default allocation.", target);
+    return VirtualAlloc(
+        nullptr,
+        size,
+        MEM_COMMIT | MEM_RESERVE,
+        PAGE_EXECUTE_READWRITE
+    );
+}
+
+[[nodiscard]]
+bool is_reljump_supported(uintptr_t jmp_source, uintptr_t jmp_target) {
+    uintptr_t abs_offset = jmp_source > jmp_target ?
+                           jmp_source - jmp_target :
+                           jmp_target - jmp_source;
+
+    return abs_offset > 0x7FFFFFFF;
+}
+
 auto JumpHook::inject_jump() -> bool {
-    if(this->override_length < 13) {
+    if(!this->buffer_config) {
+        logging::error("Could not inject jump when we don't have a target.");
+        return false;
+    }
+
+    /* Save the original instructions. */
+    {
+        if(this->buffer_original) {
+            logging::warn("inject_jump() has already been called!");
+            return true;
+        }
+
+        this->buffer_original = malloc(this->override_length);
+        mem::vm_read(this->address, this->buffer_original, this->override_length);
+    }
+
+    if(!this->buffer_config_abs_jmp) {
+        /* we can juse a relative jump. */
+        if(!this->inject_jump_rel()) {
+            return false;
+        }
+
+#ifdef HOOK_DEBUG
+        logging::debug("Created trampoline at 0x{:X} -> 0x{:X} (rel jmp)", this->address, (uintptr_t) this->buffer_config);
+#endif
+    } else {
+        if(!this->inject_jump_abs()) {
+            return false;
+        }
+
+#ifdef HOOK_DEBUG
+        logging::debug("Created trampoline at 0x{:X} -> 0x{:X} (abs jmp)", this->address, (uintptr_t) this->buffer_config);
+#endif
+    }
+
+    return true;
+}
+
+auto JumpHook::inject_jump_rel() -> bool {
+    if(this->override_length < 6) {
         /* Not possible. */
         return false;
     }
 
-    if(this->buffer_original) {
-        logging::warn("inject_jump() has already been called!");
-        return true;
+    std::vector<uint8_t> call_asm{};
+    call_asm.resize(this->override_length, 0x90); // NOP
+
+    auto offset = (intptr_t) this->buffer_config - (intptr_t) this->address - 5;
+    if(offset < -0x7FFFFFFF || offset > 0x7FFFFFFF) {
+        /* Offset out of range. */
+        return false;
     }
 
-    this->buffer_original = malloc(this->override_length);
-    mem::vm_read(this->address, this->buffer_original, this->override_length);
+    // JMP rel32
+    call_asm[0] = 0xE9;
+    *(int32_t*) (&call_asm[1]) = (int32_t) offset;
+
+    return mem::vm_write(this->address, call_asm.data(), call_asm.size());
+}
+
+auto JumpHook::inject_jump_abs() -> bool {
+    if(this->override_length < 13) {
+        /* Not possible. */
+        return false;
+    }
 
     std::vector<uint8_t> call_asm{};
     call_asm.resize(this->override_length, 0x90); // NOP
@@ -102,11 +200,6 @@ auto JumpHook::inject_jump() -> bool {
     call_asm[11] = 0xFF;
     call_asm[12] = 0xE0;
 
-#ifdef HOOK_DEBUG
-    logging::debug("Hook Config Addr: 0x{:X}", (uintptr_t) this->buffer_config);
-    logging::debug("Override {:#x} {} bytes", this->address, call_asm.size());
-    logging::debug("{}", logging::hex_dump(call_asm.data(), call_asm.size()));
-#endif
     return mem::vm_write(this->address, call_asm.data(), call_asm.size());
 }
 
@@ -116,15 +209,14 @@ auto JumpHook::inject_jump() -> bool {
 // 3. Store the return address on the stack (before the second RAX save)
 // 4. Push RCX and store the config ptr
 // 5. Call the fixed assembly code which pops RCX, RAX
-auto JumpHook::create_buffer_config() -> bool {
-    this->buffer_config_size = this->override_length + 0x100;
-    auto buffer = (uint8_t*) VirtualAlloc(nullptr, this->buffer_config_size, MEM_COMMIT, PAGE_READWRITE);
-    if(!buffer) {
-        logging::error("Failed to allocate hook config buffer ({} bytes).", this->buffer_config_size);
-        return false;
-    }
-
+void write_buffer_config(uint8_t* buffer, uintptr_t jmp_source, size_t override_length, void* callback_arg, bool is_abs_jmp) {
     size_t idx{0};
+
+    // If it's not a abs jump we need to push the rax register.
+    if(!is_abs_jmp) {
+        // push   rax
+        *(uint8_t*)   (buffer + idx++) = 0x50;
+    }
 
     // push   rcx
     *(uint8_t*)   (buffer + idx++) = 0x51;
@@ -132,7 +224,7 @@ auto JumpHook::create_buffer_config() -> bool {
     // movabs rcx, <config address>
     *(uint8_t*)   (buffer + idx++) = 0x48;
     *(uint8_t*)   (buffer + idx++) = 0xB9;
-    *(uintptr_t*) (buffer + idx  ) = (uintptr_t) this; idx += 8;
+    *(uintptr_t*) (buffer + idx  ) = (uintptr_t) callback_arg; idx += 8;
 
     // movabs rax, <target address> (Has been saved when jumping here)
     *(uint8_t*)   (buffer + idx++) = 0x48;
@@ -151,7 +243,7 @@ auto JumpHook::create_buffer_config() -> bool {
 
     // Overridden assembly codes (surrounded by a single nop)
     *(uint8_t*)   (buffer + idx++) = 0x90; // nop
-    mem::vm_read(this->address, buffer + idx, this->override_length); idx += this->override_length;
+    mem::vm_read(jmp_source, buffer + idx, override_length); idx += override_length;
     *(uint8_t*)   (buffer + idx++) = 0x90; // nop
 
     // Push the return address onto the stack without modifying any registers....
@@ -165,7 +257,7 @@ auto JumpHook::create_buffer_config() -> bool {
         // movabs rax, <return address>
         *(uint8_t*)   (buffer + idx++) = 0x48;
         *(uint8_t*)   (buffer + idx++) = 0xB8;
-        *(uintptr_t*) (buffer + idx ) = this->address + this->override_length; idx += 8;
+        *(uintptr_t*) (buffer + idx ) = jmp_source + override_length; idx += 8;
 
         // mov QWORD PTR [rsp+0x8],rax
         *(uint8_t*)   (buffer + idx++) = 0x48;
@@ -180,11 +272,19 @@ auto JumpHook::create_buffer_config() -> bool {
         // ret
         *(uint8_t*)   (buffer + idx++) = 0xC3;
     }
+}
 
-    DWORD dummy;
-    VirtualProtect(buffer, idx, PAGE_EXECUTE_READ, &dummy);
 
-    this->buffer_config = buffer;
+auto JumpHook::create_buffer_config() -> bool {
+    this->buffer_config_size = this->override_length + 0x100;
+    this->buffer_config = allocate_nearby(this->address, this->buffer_config_size);
+    if(!this->buffer_config) {
+        logging::error("Failed to allocate hook config buffer ({} bytes).", this->buffer_config_size);
+        return false;
+    }
+
+    this->buffer_config_abs_jmp = is_reljump_supported(this->address, (uintptr_t) this->buffer_config);
+    write_buffer_config((uint8_t*) this->buffer_config, this->address, this->override_length, this, this->buffer_config_abs_jmp);
     return true;
 }
 
@@ -202,6 +302,6 @@ std::shared_ptr<hook::JumpHook> hook::jump(uintptr_t address, size_t override_le
 }
 
 extern "C" [[maybe_unused]] void hook_c_callback(JumpHook* hook, hook::Registers* registers) {
-    //logging::info("Having hook callback with 0x{:X} 0x{:X}", (uintptr_t) hook, (uintptr_t) registers);
+    // logging::info("Having hook callback with 0x{:X} 0x{:X}", (uintptr_t) hook, (uintptr_t) registers);
     hook->callback(registers);
 }

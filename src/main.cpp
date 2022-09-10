@@ -338,6 +338,7 @@ bool initialize() {
         }
     }));
 
+    logging::info("Inject success!");
     return true;
 }
 
