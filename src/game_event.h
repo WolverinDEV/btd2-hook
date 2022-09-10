@@ -18,8 +18,8 @@ namespace game_event {
                                                               const std::string & /* type */,
                                                               const std::string & /* value */)>;
 
-            explicit GameEvent(uint16_t event_id, uint64_t unknown_64, uint8_t unknown_u8)
-                    : event_id{event_id}, sim_tick{unknown_64}, unknown_u8{unknown_u8} {}
+            explicit GameEvent(uint16_t event_id, uint64_t sim_tick, uint8_t player_id)
+                    : event_id{event_id}, sim_tick{sim_tick}, player_id{player_id} {}
 
             virtual ~GameEvent() = default;
 
@@ -31,7 +31,7 @@ namespace game_event {
         protected:
             uint16_t event_id;
             uint64_t sim_tick;
-            uint8_t unknown_u8;
+            uint8_t player_id;
     };
 
     typedef std::array<uint64_t, 2> uint128_t;

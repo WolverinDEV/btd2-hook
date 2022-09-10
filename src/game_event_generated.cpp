@@ -44,7 +44,7 @@ std::unique_ptr<GameEvent> SNetLobbyLoadedEvent::decode(const NetworkMessageBuff
 bool SNetLobbyLoadedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->request_map_asset_id);
 
@@ -112,7 +112,7 @@ std::unique_ptr<GameEvent> SNetRequestMapSkipEvent::decode(const NetworkMessageB
 bool SNetRequestMapSkipEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->explicitly_set_map_id);
 
@@ -166,7 +166,7 @@ std::unique_ptr<GameEvent> SNetDebug_LoadTestBytesEvent::decode(const NetworkMes
 bool SNetDebug_LoadTestBytesEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->bytes);
 
@@ -224,7 +224,7 @@ std::unique_ptr<GameEvent> SNetShowEmoteEvent::decode(const NetworkMessageBuffer
 bool SNetShowEmoteEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->side);
     (void) writer.write(this->is_visual_emote);
@@ -284,7 +284,7 @@ std::unique_ptr<GameEvent> SNetRequestFirePlayerAbilityEvent::decode(const Netwo
 bool SNetRequestFirePlayerAbilityEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->target_side);
     (void) writer.write(this->sim_tick);
@@ -340,7 +340,7 @@ std::unique_ptr<GameEvent> SNetSendFirstBloodEvent::decode(const NetworkMessageB
 bool SNetSendFirstBloodEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->side);
 
@@ -402,7 +402,7 @@ std::unique_ptr<GameEvent> SNetQueueBloonSetEvent::decode(const NetworkMessageBu
 bool SNetQueueBloonSetEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->bloon_set_id);
@@ -476,7 +476,7 @@ std::unique_ptr<GameEvent> SNetSendCriticalLifeLostEvent::decode(const NetworkMe
 bool SNetSendCriticalLifeLostEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->tick);
     (void) writer.write(this->life_before);
@@ -550,7 +550,7 @@ std::unique_ptr<GameEvent> SNetRequestWithdrawCashFromTowerEvent::decode(const N
 bool SNetRequestWithdrawCashFromTowerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -640,7 +640,7 @@ std::unique_ptr<GameEvent> SNetPlaceTowerEvent::decode(const NetworkMessageBuffe
 bool SNetPlaceTowerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->tower_type);
@@ -725,7 +725,7 @@ std::unique_ptr<GameEvent> SNetGameResultEvent::decode(const NetworkMessageBuffe
 bool SNetGameResultEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->result);
     (void) writer.write(this->side);
@@ -785,7 +785,7 @@ std::unique_ptr<GameEvent> SNetGameLoadedEvent::decode(const NetworkMessageBuffe
 bool SNetGameLoadedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
 
 
@@ -844,7 +844,7 @@ std::unique_ptr<GameEvent> SNetTriggerMapSkipEvent::decode(const NetworkMessageB
 bool SNetTriggerMapSkipEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->new_map_id);
     (void) writer.write(this->explicitly_set);
@@ -905,7 +905,7 @@ std::unique_ptr<GameEvent> SNetPlayerShieldActivatedEvent::decode(const NetworkM
 bool SNetPlayerShieldActivatedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->activate_tick);
@@ -1005,7 +1005,7 @@ std::unique_ptr<GameEvent> SNetBlingLoadoutEvent::decode(const NetworkMessageBuf
 bool SNetBlingLoadoutEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->visual_emote_0);
     (void) writer.write(this->visual_emote_1);
@@ -1081,7 +1081,7 @@ std::unique_ptr<GameEvent> SNetRequestSendTauntEvent::decode(const NetworkMessag
 bool SNetRequestSendTauntEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->taunt_index);
 
@@ -1149,7 +1149,7 @@ std::unique_ptr<GameEvent> SNetTickEvent::decode(const NetworkMessageBuffer& rea
 bool SNetTickEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->flags);
     (void) writer.write(this->net_tick);
@@ -1214,7 +1214,7 @@ std::unique_ptr<GameEvent> SNetScheduleRoundStartEvent::decode(const NetworkMess
 bool SNetScheduleRoundStartEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->round_starts_at_tick);
     (void) writer.write(this->round_idx);
@@ -1299,7 +1299,7 @@ std::unique_ptr<GameEvent> SNetSetBadgesEvent__Badge::decode(const NetworkMessag
 bool SNetSetBadgesEvent__Badge::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->season_index);
     (void) writer.write(this->type);
@@ -1364,7 +1364,7 @@ std::unique_ptr<GameEvent> SNetPatrolPointsSelectedEvent::decode(const NetworkMe
 bool SNetPatrolPointsSelectedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->net_id);
     (void) writer.write(this->net_id_version);
@@ -1429,7 +1429,7 @@ std::unique_ptr<GameEvent> SNetChangeTargetModeTowerEvent::decode(const NetworkM
 bool SNetChangeTargetModeTowerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->target_mode);
@@ -1492,7 +1492,7 @@ std::unique_ptr<GameEvent> SNetRequestSwitchFlyingDirectionEvent::decode(const N
 bool SNetRequestSwitchFlyingDirectionEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -1549,7 +1549,7 @@ std::unique_ptr<GameEvent> SNetStartGameEvent::decode(const NetworkMessageBuffer
 bool SNetStartGameEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->first_round_tick);
 
@@ -1637,7 +1637,7 @@ std::unique_ptr<GameEvent> SNetTowerLoadoutEvent::decode(const NetworkMessageBuf
 bool SNetTowerLoadoutEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->hero_slot);
     (void) writer.write(this->tower_slot_0);
@@ -1710,7 +1710,7 @@ std::unique_ptr<GameEvent> SNetSendSurrenderNetEvent::decode(const NetworkMessag
 bool SNetSendSurrenderNetEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->tick);
     (void) writer.write(this->side);
@@ -1767,7 +1767,7 @@ std::unique_ptr<GameEvent> SNetInitPlayerPostponedEvent::decode(const NetworkMes
 bool SNetInitPlayerPostponedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->due_to_missing_assets_on_referee);
     (void) writer.write(this->flags);
@@ -1826,7 +1826,7 @@ std::unique_ptr<GameEvent> SNetLastRoundGameEndRequestEvent::decode(const Networ
 bool SNetLastRoundGameEndRequestEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->side);
     (void) writer.write(this->please_end_the_game);
@@ -1899,7 +1899,7 @@ std::unique_ptr<GameEvent> SNetMoveToTowerSelectEvent::decode(const NetworkMessa
 bool SNetMoveToTowerSelectEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->lobby_ready_countdown);
 
@@ -1955,7 +1955,7 @@ std::unique_ptr<GameEvent> SNetDidFirePlayerAbilityEvent::decode(const NetworkMe
 bool SNetDidFirePlayerAbilityEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->ability_type);
@@ -2016,7 +2016,7 @@ std::unique_ptr<GameEvent> SNetTargetTouchPointEvent::decode(const NetworkMessag
 bool SNetTargetTouchPointEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->point_x);
@@ -2092,7 +2092,7 @@ std::unique_ptr<GameEvent> SNetBombBlitzActivatedEvent::decode(const NetworkMess
 bool SNetBombBlitzActivatedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->activate_tick);
@@ -2154,7 +2154,7 @@ std::unique_ptr<GameEvent> SNetCenterPointSelectedEvent::decode(const NetworkMes
 bool SNetCenterPointSelectedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->net_id);
     (void) writer.write(this->net_id_version);
@@ -2226,7 +2226,7 @@ std::unique_ptr<GameEvent> SNetConfirmRoundStartEvent::decode(const NetworkMessa
 bool SNetConfirmRoundStartEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->round_starts_at_tick);
     (void) writer.write(this->round_idx);
@@ -2281,7 +2281,7 @@ std::unique_ptr<GameEvent> SNetDebug_LoadScenarioEvent::decode(const NetworkMess
 bool SNetDebug_LoadScenarioEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->scenario_number);
 
@@ -2335,7 +2335,7 @@ std::unique_ptr<GameEvent> SNetDebug_SetSimSpeedEvent::decode(const NetworkMessa
 bool SNetDebug_SetSimSpeedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->speed);
 
@@ -2391,7 +2391,7 @@ std::unique_ptr<GameEvent> SNetDebug_StartRoundEvent::decode(const NetworkMessag
 bool SNetDebug_StartRoundEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->round_starts_at_tick);
     (void) writer.write(this->round_idx);
@@ -2450,7 +2450,7 @@ std::unique_ptr<GameEvent> SNetInitPlayerRequestEvent::decode(const NetworkMessa
 bool SNetInitPlayerRequestEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->rng_seed);
     (void) writer.write(this->player_ids_by_side);
@@ -2512,7 +2512,7 @@ std::unique_ptr<GameEvent> SNetDidQueueBloonSetEvent::decode(const NetworkMessag
 bool SNetDidQueueBloonSetEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->bloon_set_id);
@@ -2577,7 +2577,7 @@ std::unique_ptr<GameEvent> SNetEcoUpdatedEvent::decode(const NetworkMessageBuffe
 bool SNetEcoUpdatedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->cash);
     (void) writer.write(this->income);
@@ -2637,7 +2637,7 @@ std::unique_ptr<GameEvent> SNetFirePlayerAbilityEvent::decode(const NetworkMessa
 bool SNetFirePlayerAbilityEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->ability_type);
@@ -2690,7 +2690,7 @@ std::unique_ptr<GameEvent> SNetInitPlayerCompleteEvent::decode(const NetworkMess
 bool SNetInitPlayerCompleteEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
 
 
@@ -2743,7 +2743,7 @@ std::unique_ptr<GameEvent> SNetLobbyErrorEvent::decode(const NetworkMessageBuffe
 bool SNetLobbyErrorEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->error_code);
 
@@ -2803,7 +2803,7 @@ std::unique_ptr<GameEvent> SNetLockInPlacePointSelectedEvent::decode(const Netwo
 bool SNetLockInPlacePointSelectedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->net_id);
     (void) writer.write(this->net_id_version);
@@ -2858,7 +2858,7 @@ std::unique_ptr<GameEvent> SNetReadyToPlayEvent::decode(const NetworkMessageBuff
 bool SNetReadyToPlayEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
 
 
@@ -2913,7 +2913,7 @@ std::unique_ptr<GameEvent> SNetReadyUpEvent::decode(const NetworkMessageBuffer& 
 bool SNetReadyUpEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->ready_phase);
     (void) writer.write(this->lobby_generation);
@@ -2976,7 +2976,7 @@ std::unique_ptr<GameEvent> SNetRefereeSelectedTowerLoadoutEvent::decode(const Ne
 bool SNetRefereeSelectedTowerLoadoutEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->hero_slot);
     (void) writer.write(this->tower_slot_0);
@@ -3038,7 +3038,7 @@ std::unique_ptr<GameEvent> SNetRemoveBlockerEvent::decode(const NetworkMessageBu
 bool SNetRemoveBlockerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->blocker_group);
@@ -3104,7 +3104,7 @@ std::unique_ptr<GameEvent> SNetRemoveTowerEvent::decode(const NetworkMessageBuff
 bool SNetRemoveTowerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -3163,7 +3163,7 @@ std::unique_ptr<GameEvent> SNetRequestCurrentHealthEvent::decode(const NetworkMe
 bool SNetRequestCurrentHealthEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->tick);
 
@@ -3233,7 +3233,7 @@ std::unique_ptr<GameEvent> SNetRequestQueueBloonSetEvent::decode(const NetworkMe
 bool SNetRequestQueueBloonSetEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->target_side);
     (void) writer.write(this->sim_tick);
@@ -3303,7 +3303,7 @@ std::unique_ptr<GameEvent> SNetRequestSetTowerTargetPointEvent::decode(const Net
 bool SNetRequestSetTowerTargetPointEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -3361,7 +3361,7 @@ std::unique_ptr<GameEvent> SNetRequestSimSnapshotEvent::decode(const NetworkMess
 bool SNetRequestSimSnapshotEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->take_snapshot_at_tick);
 
@@ -3439,7 +3439,7 @@ std::unique_ptr<GameEvent> SNetRequestStartTowerFlightPathRejoinEvent::decode(co
 bool SNetRequestStartTowerFlightPathRejoinEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -3511,7 +3511,7 @@ std::unique_ptr<GameEvent> SNetRequestSwitchHandEvent::decode(const NetworkMessa
 bool SNetRequestSwitchHandEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->net_id);
@@ -3572,7 +3572,7 @@ std::unique_ptr<GameEvent> SNetSendLifeChangedEvent::decode(const NetworkMessage
 bool SNetSendLifeChangedEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->tick);
     (void) writer.write(this->life_before);
@@ -3628,7 +3628,7 @@ std::unique_ptr<GameEvent> SNetSetGameMapEvent::decode(const NetworkMessageBuffe
 bool SNetSetGameMapEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->map_asset_id);
 
@@ -3692,7 +3692,7 @@ std::unique_ptr<GameEvent> SNetSetNameEvent::decode(const NetworkMessageBuffer& 
 bool SNetSetNameEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->is_vip);
     (void) writer.write(this->avatar_id);
@@ -3753,7 +3753,7 @@ std::unique_ptr<GameEvent> SNetSimSnapshotEvent::decode(const NetworkMessageBuff
 bool SNetSimSnapshotEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->tick);
     (void) writer.write(this->data);
@@ -3826,7 +3826,7 @@ std::unique_ptr<GameEvent> SNetStartLoadingEvent::decode(const NetworkMessageBuf
 bool SNetStartLoadingEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->map);
     (void) writer.write(this->left_hero_slot);
@@ -3891,7 +3891,7 @@ std::unique_ptr<GameEvent> SNetStartLobbyEvent::decode(const NetworkMessageBuffe
 bool SNetStartLobbyEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->lobby_clock);
     (void) writer.write(this->map_asset_id);
@@ -3962,7 +3962,7 @@ std::unique_ptr<GameEvent> SNetUpgradeTowerEvent::decode(const NetworkMessageBuf
 bool SNetUpgradeTowerEvent::encode(NetworkMessageBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
     (void) writer.write(this->sim_tick);
     (void) writer.write(this->path);

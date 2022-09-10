@@ -40,8 +40,31 @@ bool util::initialize_offsets(std::string &error) {
 // 48 8B 05 ? ? ? ? 48 85 C0 75 ? B9 ? ? ? ? E8 ? ? ? ? 48 8B D8 48 89 44 24 60 48 85 C0 74 ? 33 D2 41 B8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B CB E8 ? ? ? ? EB ? 49 8B C5 48 89 05 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B C8
 
 std::string util::decode_xor_string(uint64_t key, uintptr_t function_ptr, const std::optional<size_t> &length) {
+    MEMORY_BASIC_INFORMATION mbi{};
+    if(!VirtualQueryEx(GetCurrentProcess(), (void*) function_ptr, &mbi, sizeof(mbi))) {
+        logging::warn("Failed to query address memory info: {}", logging::last_error_message());
+        return "";
+    }
+
+    if(mbi.State != MEM_COMMIT) {
+        return "-- invalid address --";
+    }
+
+    if(!(mbi.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE))) {
+        /* target is not executable */
+        return "-- not a function --";
+    }
+
     auto fn_encrypted_data = (void*(*)()) function_ptr;
     auto encrypted_data = fn_encrypted_data();
+    if(!VirtualQueryEx(GetCurrentProcess(), (void*) encrypted_data, &mbi, sizeof(mbi))) {
+        logging::warn("Failed to query address memory info: {}", logging::last_error_message());
+        return "";
+    }
+    if(mbi.State != MEM_COMMIT) {
+        return "-- function returned invalid address --";
+    }
+
     auto encrypted_data_ptr = (uint8_t*) encrypted_data;
 
     // Test if the string has already been decrypted

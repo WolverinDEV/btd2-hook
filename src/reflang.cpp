@@ -270,10 +270,10 @@ void reflang::generate_game_events() {
         /* constructor */
         {
             ostream_hpp << "    public:\n";
-            ostream_hpp << util::replace_all("        explicit %class_name%(uint16_t /* event_id */, uint64_t /* sim tick */, uint8_t /* unknown u8 */);\n", {{ "%class_name%", class_name }});
+            ostream_hpp << util::replace_all("        explicit %class_name%(uint16_t /* event_id */, uint64_t /* sim tick */, uint8_t /* player id */);\n", {{ "%class_name%", class_name }});
             ostream_cpp << util::replace_all(R"(
-%class_name%::%class_name%(uint16_t event_id, uint64_t sim_tick, uint8_t unknown_u8)
-    : GameEvent(event_id, sim_tick, unknown_u8) { }
+%class_name%::%class_name%(uint16_t event_id, uint64_t sim_tick, uint8_t player_id)
+    : GameEvent(event_id, sim_tick, player_id) { }
 )", {{ "%class_name%", class_name }});
         }
 
@@ -359,10 +359,10 @@ void %class_name%::iter_fields(const iter_fields_callback_t &fn) const {
 std::unique_ptr<GameEvent> %class_name%::decode(const PayloadPacketBuffer& reader) {
     uint16_t event_id{};
     uint64_t sim_tick{};
-    uint8_t unknown_u8{};
+    uint8_t player_id{};
     (void) reader.read(event_id);
     (void) reader.read(sim_tick);
-    (void) reader.read(unknown_u8);
+    (void) reader.read(player_id);
 
     if(reader.has_read_error()) {
         return nullptr;
@@ -372,7 +372,7 @@ std::unique_ptr<GameEvent> %class_name%::decode(const PayloadPacketBuffer& reade
     //     return nullptr;
     // }
 
-    auto instance = std::make_unique<%class_name%>(event_id, sim_tick, unknown_u8);
+    auto instance = std::make_unique<%class_name%>(event_id, sim_tick, player_id);
 %field_parsers%
 
     if(reader.has_read_error()) {
@@ -415,7 +415,7 @@ std::unique_ptr<GameEvent> %class_name%::decode(const PayloadPacketBuffer& reade
 bool %class_name%::encode(PayloadPacketBuffer& writer) const {
     (void) writer.write(this->event_id);
     (void) writer.write(this->sim_tick);
-    (void) writer.write(this->unknown_u8);
+    (void) writer.write(this->player_id);
 
 %field_writer%
 

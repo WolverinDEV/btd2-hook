@@ -46,6 +46,9 @@ struct NetworkMessage {
     //bool read_error_occurred;
 };
 
+uint8_t local_player_id{};
+uint8_t remote_player_id{};
+
 void send_network_message(const std::vector<uint8_t>& payload);
 void send_game_event(game_event::GameEvent* /* event */);
 
@@ -53,12 +56,12 @@ extern std::map<uint32_t, std::string> game_event_mapping;
 void handle_game_event(std::vector<uint8_t>& buffer, NetworkMessageBuffer& reader, bool is_send) {
     uint16_t event_id{};
     uint64_t sim_tick{}; // Maybe sim tick
-    uint8_t unknown_u8{};
+    uint8_t player_id{};
 
     auto read_offset{reader.read_offset()};
     (void) reader.read(event_id);
     (void) reader.read(sim_tick);
-    (void) reader.read(unknown_u8);
+    (void) reader.read(player_id);
     reader.read_offset(read_offset);
 
     std::string event_name{};
@@ -69,7 +72,26 @@ void handle_game_event(std::vector<uint8_t>& buffer, NetworkMessageBuffer& reade
         event_name = event_name_it->second;
     }
 
-    logging::info("{} game event 0x{:X} ({}) (Sim tick: 0x{:X}, Unknown U8: 0x{:X})", is_send ? "Sending" : "Receiving", event_id, event_name, sim_tick, unknown_u8);
+    bool silent_event{false};
+    if(event_name == "NetworkEvent::SNetTargetTouchPointEvent") {
+        /* visible in net debug ui */
+        silent_event = true;
+    } else if(event_name == "NetworkEvent::SNetTickEvent") {
+        /* visible in net debug ui */
+        silent_event = true;
+    }
+
+    if(player_id != 0xFF) {
+        if(is_send) {
+            local_player_id = player_id;
+        } else {
+            remote_player_id = player_id;
+        }
+    }
+
+    if(!silent_event) {
+        logging::info("{} game event 0x{:X} ({}) (Sim tick: 0x{:X}, Player Id: 0x{:X})", is_send ? "Sending" : "Receiving", event_id, event_name, sim_tick, player_id);
+    }
 #ifdef GAME_EVENTS_DECLARED
     auto decoder = game_event::game_event_decoders.find(event_name);
     if(decoder == game_event::game_event_decoders.end()) {
@@ -83,42 +105,33 @@ void handle_game_event(std::vector<uint8_t>& buffer, NetworkMessageBuffer& reade
         return;
     }
 
-    event->iter_fields([](const auto& name, const auto& type, const auto& value) {
-        logging::info("  {} {} -> {}", type, name, value);
-    });
+    if(!silent_event) {
+        event->iter_fields([](const auto& name, const auto& type, const auto& value) {
+            logging::info("  {} {} -> {}", type, name, value);
+        });
+    }
 
+    if(auto request = std::dynamic_pointer_cast<game_event::SNetTargetTouchPointEvent>(event); request) {
+        auto& cursor = is_send ? ui::state::debug::cursor_local : ui::state::debug::cursor_remote;
+        cursor.active = !request->released;
+        cursor.pos_x = request->point_x;
+        cursor.pos_y = request->point_y;
+    }
+
+    if(auto request = std::dynamic_pointer_cast<game_event::SNetTickEvent>(event); request) {
+        auto& state = is_send ? ui::state::debug::network_tick_local : ui::state::debug::network_tick_remote;
+
+        state.net_tick = request->net_tick;
+        state.sim_tick = request->sim_tick;
+
+        state.latency = request->latency;
+        state.jitter = request->jitter;
+
+        state.bloons_created = request->bloons_created;
+        state.bloons_popped = request->bloons_popped;
+        state.bloons_leaked = request->bloons_leaked;
+    }
     bool event_manipulated{false};
-//    if(auto request = std::dynamic_pointer_cast<game_event::SNetPlaceTowerEvent>(event); request) {
-//        logging::info("Game event upgrade!");
-//        event_manipulated = true;
-//    }
-//    if(auto request = std::dynamic_pointer_cast<game_event::SNetScheduleRoundStartEvent>(event); request) {
-//        logging::info("  Modyfing sim tick.");
-//        request->round_starts_at_tick += 500;
-//        event_manipulated = true;
-//    }
-    if(auto request = std::dynamic_pointer_cast<game_event::SNetPlaceTowerEvent>(event); request && is_send &&& ui::crash_player) {
-        logging::info("  Sending emoji!");
-        event_manipulated = true;
-
-        // 3 is tack
-
-//        game_event::SNetShowEmoteEvent eevent{0x7E, 0x00, 0xFF};
-//        eevent.side = 1;
-//        eevent.is_visual_emote = 1;
-//        eevent.index = 1;
-//        send_game_event(&eevent);
-    }
-    if(auto request = std::dynamic_pointer_cast<game_event::SNetReadyUpEvent>(event); request && is_send) {
-        logging::info("  Setting map.");
-
-//        game_event::SNetRequestMapSkipEvent eevent{0x11, 0x00, 0xFF};
-//        eevent.explicitly_set_map_id = 17952145555794453232ull;
-//        send_game_event(&eevent);
-//
-//        event_manipulated = true;
-        // buffer.clear(); (Hmm cleaning the buffer will be an instant disconnect...)
-    }
 
 //    if(auto request = std::dynamic_pointer_cast<game_event::SNetSendLifeChangedEvent>(event); request && is_send) {
 //        logging::info("  Sending full live.");
@@ -126,7 +139,7 @@ void handle_game_event(std::vector<uint8_t>& buffer, NetworkMessageBuffer& reade
 //        request->life_after = 150;
 //        event_manipulated = true;
 //    }
-//
+
 //    if(auto request = std::dynamic_pointer_cast<game_event::SNetSendCriticalLifeLostEvent>(event); request && is_send) {
 //        logging::info("  Ignore crit live.");
 //        buffer.clear();
@@ -134,18 +147,6 @@ void handle_game_event(std::vector<uint8_t>& buffer, NetworkMessageBuffer& reade
 ////        request->life_after = 150;
 ////        event_manipulated = true;
 //    }
-    //
-    //    17:44:42 [ INFO] Sending game event 0x6F (NetworkEvent::SNetUpgradeTowerEvent) (Unknown U64: 0x3A61, Unknown U8: 0x1)
-//    17:44:42 [ INFO]   uint64_t sim_tick -> 14945
-//    17:44:42 [ INFO]   uint8_t path -> 2
-//    17:44:42 [ INFO]   int8_t to_level -> 2
-//    17:44:42 [ INFO]   float_t cost -> 100
-//    17:44:42 [ INFO]   float_t cost_xp -> 0
-//    17:44:42 [ INFO]   uint64_t net_id -> 1020007
-//    17:44:42 [ INFO]   uint32_t net_id_version -> 1
-//    17:44:42 [ INFO]   uint32_t tower_type -> 3
-//    17:44:42 [ INFO]   uint64_t eco_receipt_id -> 56
-    // NetworkEvent::SNetEcoUpdatedEvent
 
     if(event_manipulated) {
         NetworkMessageBuffer encoded{};
@@ -200,9 +201,6 @@ bool initialize_network_address() {
 
 
 void send_network_message(const std::vector<uint8_t>& payload) {
-    // allocate_pending_payload: 48 8D 05 ? ? ? ? 48 89 01 33 C0 48 89 41 08 48 89 41 10 48 89 41 18 48 89 41 20 48 89 41 28 48 89 41 30 48 89 41 38 66 89 41 40
-    // free_pending_payload: 40 53 48 83 EC ? 48 8D 05 ? ? ? ? 48 8B D9 48 89 01 48 8B 49 08 48 85 C9 74 ? 48 8B 53 18 48 2B D1 48 81 FA ? ? ? ? 72 ? 4C 8B 41 F8 48 83 C2 ? 49 2B C8 48 8D 41 F8 48 83 F8 ? 77 ? 49 8B C8 E8 ? ? ? ? 33 C0 48 89 43 08 48 89 43 10 48 89 43 18 48 83 C4 ? 5B C3 FF 15 ? ? ? ? CC CC CC CC CC CC CC CC CC CC CC CC CC 48 8B C4 48 81 EC ? ? ? ? 0F 29 70 E8
-    // MessageQueue::enqueue_send_message: see bellow
     auto network_message_construct = (NetworkMessage*(*)(NetworkMessage*)) address_allocate_pending_payload;
     auto network_message_destruct = (NetworkMessage*(*)(NetworkMessage*, bool)) address_free_pending_payload;
     auto enqueue_fn = (bool(*)(void*, void*, void*)) address_message_queue_enqueue_send_message;
@@ -311,7 +309,10 @@ bool initialize() {
 
         if(packet_type == "GE") {
             handle_game_event(payload->payload, reader, true);
-        } else {
+        } else if(packet_type == "ECHO") {
+            // TODO: What's about the payload?
+            /* Don't log spamming echos. */
+        }  else {
             logging::info("Send {} 0x{:X} (length: 0x{:X})", packet_type, (uintptr_t) payload, payload->write_offset);
         }
     }));
@@ -333,6 +334,8 @@ bool initialize() {
 
         if(packet_type == "GE") {
             handle_game_event(payload->payload, reader, false);
+        } else if(packet_type == "ECHO") {
+            /* Don't log spamming echos. */
         } else {
             logging::info("Received {} 0x{:X} (length: 0x{:X})", packet_type, (uintptr_t) payload, payload->write_offset);
         }
