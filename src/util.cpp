@@ -92,9 +92,17 @@ std::string util::decode_xor_string(uint64_t key, uintptr_t function_ptr, const 
     return buffer;
 }
 
-// Currently: B42D1230A78185FF
+// The HTTP Sign arg is constant access versions: B42D1230A78185FF
+// At the position where we find this, there is also another string.
+// It's currently unclear for what this is for.
 std::string util::get_http_sign_arg2() {
+#if 0 \
+    /* Version 1.5.1 */
     auto address = mem::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B D8 48 8B 8E B8 00 00 00");
+#else
+    /* Version 1.6.1 */
+    auto address = mem::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B D8 48 8B 8E B0 00 00 00");
+#endif
     if(!address.has_value()) {
         logging::error("Failed to find pattern for http sign arg2");
         return "";

@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # The injector
-add_executable(Injector injector/main.cpp injector/aad.cpp)
+add_executable(Injector injector/main.cpp)
 
 include(third_party/imgui.cmake)
 
@@ -32,10 +32,10 @@ target_link_libraries(BTDB2_Injectable fmt::fmt imgui__core imgui__win32 imgui__
 find_program(POWERSHELL_PATH NAMES powershell)
 add_custom_command(
     TARGET BTDB2_Injectable PRE_BUILD
-    COMMAND ${POWERSHELL_PATH} "${CMAKE_SOURCE_DIR}/Eject.ps1"
+    COMMAND ${POWERSHELL_PATH} "${CMAKE_SOURCE_DIR}/scripts/Eject.ps1"
 )
 
 add_custom_command(
     TARGET BTDB2_Injectable POST_BUILD
-    COMMAND ${POWERSHELL_PATH} "${CMAKE_SOURCE_DIR}/Inject.ps1"
+    COMMAND ${POWERSHELL_PATH} "${CMAKE_SOURCE_DIR}/scripts/Inject.ps1"
 )

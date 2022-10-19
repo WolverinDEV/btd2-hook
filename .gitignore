@@ -2,3 +2,5 @@
 .vscode
 cmake-build-*
 build
+playground_session.py
+venv
