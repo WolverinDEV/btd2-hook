@@ -15,3 +15,8 @@ Most of the documentation doesn't seem to be game specific and might work for ot
 
 Currently, only the HTTP API `api.ninjakiwi.com` has been documented.  
 More will hopefully follow soon such as game internals, network stack, etc.
+
+## Bonus: Python API
+The file `playground.py` currently includes a simple ninja kiwi API wrapper.  
+Since it is a playground it does not guarantee any API stability nor should be used in any third party app.  
+The main goal is to explore the NK API as well serve as a sample implementation.
