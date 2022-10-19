@@ -1,7 +1,7 @@
 #include "reflang.h"
-#include "util.h"
-#include "log.h"
-#include "./payload_buffer.h"
+#include "../util.h"
+#include "../log.h"
+#include "../payload_buffer.h"
 #include <unordered_map>
 #include <memory>
 #include <fstream>
@@ -242,7 +242,7 @@ std::unordered_map<uintptr_t, std::string> type_mapping{
     return *class_map;
 }
 
-void reflang::generate_game_events() {
+void hooks::reflang::generate_game_events() {
     std::ostringstream ostream_hpp{};
     std::ostringstream ostream_cpp{};
 
@@ -278,13 +278,13 @@ void reflang::generate_game_events() {
         }
 
         {
-            reflang::Reference instance{};
+            ::reflang::Reference instance{};
             instance.type = value->get_type();
             instance.data_ptr = nullptr;
 
             ostream_hpp << "    public:\n";
             for(const auto& field : value->get_field_list()) {
-                reflang::Reference field_reference{};
+                ::reflang::Reference field_reference{};
                 value->get_field(field_reference, instance, field);
 
                 auto rfa_type = (size_t) field_reference.type - util::exe_offset;
@@ -461,7 +461,7 @@ bool %class_name%::encode(PayloadPacketBuffer& writer) const {
 }
 
 // Class list 15E61D0
-bool reflang::initialize(std::string&) {
+bool hooks::reflang::initialize(std::string&) {
 //    reflang::generate_game_events();
 
 //    auto class_map_fn = (void*(*)()) (util::exe_offset + 0x15E60F0);
@@ -522,11 +522,16 @@ bool reflang::initialize(std::string&) {
     return true;
 }
 
-void reflang::dump_event_map() {
+void hooks::reflang::dump_event_map() {
     for(const auto& [ event_id, vtable_ptr ] : game_event_mapping_vtable1) {
         auto vtable = (void*) (vtable_ptr + util::exe_offset);
-        auto instance = (reflang::IClass*) &vtable;
+        auto instance = (::reflang::IClass*) &vtable;
 
         logging::info("{{ 0x{:X}, \"{}\" }},", event_id, instance->get_name());
     }
+}
+
+
+void hooks::reflang::finalize() {
+
 }

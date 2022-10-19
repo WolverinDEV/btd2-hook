@@ -21,11 +21,13 @@ add_library(BTDB2_Injectable SHARED
         src/util.cpp
         src/mem.cpp
         src/hook.cpp
-        src/reflang.cpp
+        src/hooks/reflang.cpp
         src/payload_buffer.cpp
         src/game_event.cpp
         src/hook_win32_x64.asm
         src/ui.cpp
+        src/hooks/http.cpp
+        src/hooks/protocol.cpp
 )
 target_link_libraries(BTDB2_Injectable fmt::fmt imgui__core imgui__win32 imgui__opengl3)
 

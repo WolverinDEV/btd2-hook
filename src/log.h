@@ -24,17 +24,17 @@ namespace logging {
     }
 }
 
-#define LOGGING_LEVEL_FUNCTIONS(function_name, level_prefix)                                \
-namespace logging {                                                                         \
-    template<typename ...T>                                                                 \
-    inline void function_name(fmt::format_string<T...> fmt, T&&... args) {                  \
-        try {                                                                               \
-            auto message = ::fmt::format(fmt, args...);                                     \
-            ::logging::message(level_prefix, message);                                      \
-        } catch(...) {                                                                      \
-            ::logging::message("ERROR", ::fmt::format("Failed to write logging message: {}", fmt));        \
-        }                                                                                   \
-    }                                                                                       \
+#define LOGGING_LEVEL_FUNCTIONS(function_name, level_prefix)                                                \
+namespace logging {                                                                                         \
+    template<typename ...T>                                                                                 \
+    inline void function_name(fmt::format_string<T...> fmt, T&&... args) {                                  \
+        try {                                                                                               \
+            auto message = ::fmt::format(fmt, args...);                                                     \
+            ::logging::message(level_prefix, message);                                                      \
+        } catch(...) {                                                                                      \
+            ::logging::message("ERROR", ::fmt::format("Failed to write logging message: {}", fmt));         \
+        }                                                                                                   \
+    }                                                                                                       \
 }
 
 LOGGING_LEVEL_FUNCTIONS(info,  " INFO")

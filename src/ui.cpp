@@ -1,5 +1,6 @@
 #include "./ui.h"
 #include "./hook.h"
+#include "./hooks/protocol.h"
 #include "util.h"
 #include "game_event.h"
 #include "log.h"
@@ -120,10 +121,6 @@ CursorPosition state::debug::cursor_remote{};
 NetworkTick state::debug::network_tick_local{};
 NetworkTick state::debug::network_tick_remote{};
 
-extern void send_game_event(game_event::GameEvent* /* event */);
-extern uint8_t local_player_id;
-extern uint8_t remote_player_id;
-
 static constexpr auto kTemplateAuthClipboard{R"(
 USER_SESSION = {
     "session": "%session%",
@@ -189,14 +186,14 @@ void ui_render() {
             game_event::SNetReadyUpEvent eevent{0x0C, 0x00, 0xFF};
             eevent.ready_phase = 1;
             eevent.lobby_generation = 0;
-            send_game_event(&eevent);
+            hooks::protocol::send_game_event(&eevent);
         }
 
         if(ImGui::Button("Skip lobby 2")) {
             game_event::SNetReadyUpEvent eevent{0x0C, 0x00, 0xFF};
             eevent.ready_phase = 2;
             eevent.lobby_generation = 0;
-            send_game_event(&eevent);
+            hooks::protocol::send_game_event(&eevent);
         }
 
         if(ImGui::Button("Switch map")) {
@@ -211,11 +208,14 @@ void ui_render() {
                 eevent.side = 1;
                 eevent.is_visual_emote = 1;
                 eevent.index = 2;
-                send_game_event(&eevent);
+                hooks::protocol::send_game_event(&eevent);
             }
 
             {
                 // std::vector<uint8_t> player_ids_by_side -> 1, 2
+                auto local_player_id = hooks::protocol::local_player_id;
+                auto remote_player_id = hooks::protocol::remote_player_id;
+
                 logging::debug("Local player {}, remote player {}", local_player_id, remote_player_id);
                 {
                     game_event::SNetEcoUpdatedEvent eevent{0x85, 0, local_player_id};
@@ -224,7 +224,7 @@ void ui_render() {
                     eevent.eco_receipt_id = 1233;
                     eevent.context = 9; // Ballon send
                     eevent.subcontext = 24; // Which ballon
-                    send_game_event(&eevent);
+                    hooks::protocol::send_game_event(&eevent);
                 }
                 {
                     game_event::SNetRequestQueueBloonSetEvent eevent{0x71, 0, local_player_id};
@@ -241,7 +241,7 @@ void ui_render() {
                     eevent.eco_receipt_id = 1233;
                     eevent.self_send_flag = 0;
 
-                    send_game_event(&eevent);
+                    hooks::protocol::send_game_event(&eevent);
 
 //                    16:38:58 [ INFO] Sending game event 0x85 (NetworkEvent::SNetEcoUpdatedEvent) (Sim tick: 0x5F60, Player Id: 0x1)
 //                    16:38:58 [ INFO]   float_t cash -> 12970.106

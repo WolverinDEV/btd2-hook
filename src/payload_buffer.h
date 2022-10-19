@@ -139,20 +139,20 @@ inline bool NetworkMessageBuffer::write(const primitive_type& target) {         
     return this->write_bytes((const uint8_t*) &target, sizeof(primitive_type));     \
 }
 
-DEFINE_READ_PRIMITIVE(int8_t);
-DEFINE_READ_PRIMITIVE(uint8_t);
+DEFINE_READ_PRIMITIVE(int8_t)
+DEFINE_READ_PRIMITIVE(uint8_t)
 
-DEFINE_READ_PRIMITIVE(int16_t);
-DEFINE_READ_PRIMITIVE(uint16_t);
+DEFINE_READ_PRIMITIVE(int16_t)
+DEFINE_READ_PRIMITIVE(uint16_t)
 
-DEFINE_READ_PRIMITIVE(int32_t);
-DEFINE_READ_PRIMITIVE(uint32_t);
+DEFINE_READ_PRIMITIVE(int32_t)
+DEFINE_READ_PRIMITIVE(uint32_t)
 
-DEFINE_READ_PRIMITIVE(int64_t);
-DEFINE_READ_PRIMITIVE(uint64_t);
+DEFINE_READ_PRIMITIVE(int64_t)
+DEFINE_READ_PRIMITIVE(uint64_t)
 
-DEFINE_READ_PRIMITIVE(float);
-DEFINE_READ_PRIMITIVE(double);
+DEFINE_READ_PRIMITIVE(float)
+DEFINE_READ_PRIMITIVE(double)
 #undef DEFINE_READ_PRIMITIVE
 
 template<>

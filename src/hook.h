@@ -36,6 +36,6 @@ namespace hook {
     typedef std::function<void(Registers*)> hook_callback_t;
 
     // Inject a jump hook which needs at least 5 bytes of override length.
-    // Attention: The overridden bytes must *not* contains a RET instruction!
+    // Attention: The overridden bytes must *not* contains a RET or RELCALL instruction!
     extern std::shared_ptr<JumpHook> jump(uintptr_t /* address */, size_t /* override length */, hook_callback_t /* callback */);
 }
