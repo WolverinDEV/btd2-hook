@@ -151,8 +151,13 @@ void inject_dll(HANDLE handle_process, const std::string& target_dll) {
 
     DWORD exit_code{0xFFFF};
     GetExitCodeThread(handle_thread, &exit_code);
-    std::cout << "Exit code: " << exit_code << "\n";
     CloseHandle(handle_thread);
+
+    if(!exit_code) {
+        std::cout << "Thread exited with code 0. LoadLibraryA failed.\n";
+    } else {
+        std::cout << "LoadLibraryA succeeded. Library handle: 0x" << std::hex << exit_code << std::oct << "\n";
+    }
 }
 
 void process_eject_dll(HANDLE handle_process, HANDLE target_dll_handle) {
@@ -186,8 +191,13 @@ void process_eject_dll(HANDLE handle_process, HANDLE target_dll_handle) {
 
     DWORD exit_code{0xFFFF};
     GetExitCodeThread(handle_thread, &exit_code);
-    std::cout << "Exit code: " << exit_code << "\n";
     CloseHandle(handle_thread);
+
+    if(exit_code) {
+        std::cout << "Unload successful (Exit code " << exit_code << ")" << "\n";
+    } else {
+        std::cout << "Failed to unload library.\n";
+    }
 }
 
 enum struct Action {
